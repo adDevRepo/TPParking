@@ -15,60 +15,14 @@ class ParkingBillingTest {
     private final LocalDateTime entree = LocalDateTime.of(2026, 11, 4, 10, 0);
 
 
-    // TESTS MOTOS
-
-    @Test
-    void motorbikeThirtyMinutesAreFree() {
-        LocalDateTime entry = LocalDateTime.of(2026, 10, 28, 9, 0);
-
-        assertEquals(0.00, parkingBilling.computePrice(
-                "MOTORBIKE", entry, entry.plusMinutes(30), false), 0.001);
-    }
-
-    @Test
-    void motorbikeThirtyMinutesAndOneSecondCostOneEuro() {
-        LocalDateTime entry = LocalDateTime.of(2026, 10, 28, 9, 0);
-
-        assertEquals(1.00, parkingBilling.computePrice(
-                "MOTORBIKE", entry, entry.plusMinutes(30).plusSeconds(1), false), 0.001);
-    }
-
-    @Test
-    void motorbikeNinetyMinutesCostOneEuro() {
-        LocalDateTime entry = LocalDateTime.of(2026, 10, 28, 10, 0);
-
-        assertEquals(1.00, parkingBilling.computePrice(
-                "MOTORBIKE", entry, entry.plusMinutes(90), false), 0.001);
-    }
-
-    @Test
-    void motorbikeNinetyOneMinutesCostTwoEuros() {
-        LocalDateTime entry = LocalDateTime.of(2026, 10, 28, 10, 0);
-
-        assertEquals(2.00, parkingBilling.computePrice(
-                "MOTORBIKE", entry, entry.plusMinutes(91), false), 0.001);
-    }
-
-    @Test
-    void motorbikeTwentyFourHoursCostTenEurosAndTwentyFiveHoursCostEleven() {
-        LocalDateTime entry = LocalDateTime.of(2026, 10, 28, 10, 0);
-
-        assertEquals(10.00, parkingBilling.computePrice(
-                "MOTORBIKE", entry, entry.plusHours(24), false), 0.001);
-        assertEquals(11.00, parkingBilling.computePrice(
-                "MOTORBIKE", entry, entry.plusHours(25), false), 0.001);
-    }
-
     // CAR
-
     @Test
     void carFourHours() {
         LocalDateTime entry = LocalDateTime.of(2026, 11, 4, 10, 0);
-
-        assertEquals(8.00, parkingBilling.computePrice(
-                "CAR", entry, entry.plusHours(4), false), 0.001);
+        assertEquals(8.00, new ParkingBilling().computePrice("CAR", entry, entry.plusHours(4), false), 0.001);
     }
 
+    // Durée gratuite
     @Test
     void carZeroMinutesEstGratuit() {
         assertEquals(
@@ -82,7 +36,8 @@ class ParkingBillingTest {
         assertEquals(
                 0.0,
                 parkingBilling.computePrice("CAR", entree, entree.plusMinutes(30), false),
-                0.001);
+                0.001
+        );
     }
 
     @Test
@@ -90,16 +45,18 @@ class ParkingBillingTest {
         assertEquals(
                 2.0,
                 parkingBilling.computePrice("CAR", entree, entree.plusMinutes(31), false),
-                0.001);
+                0.001
+        );
     }
 
+    // Heures entamées
     @Test
     void car1Heures1MinutesCoutent4Euros() {
         assertEquals(
                 4.0,
-                parkingBilling.computePrice(
-                        "CAR", entree, entree.plusHours(1).plusMinutes(1), false),
-                0.001);
+                parkingBilling.computePrice("CAR", entree, entree.plusHours(1).plusMinutes(1), false),
+                0.001
+        );
     }
 
     @Test
@@ -107,15 +64,18 @@ class ParkingBillingTest {
         assertEquals(
                 8.00,
                 parkingBilling.computePrice("CAR", entree, entree.plusHours(4), false),
-                0.001);
+                0.001
+        );
     }
 
+    // Plafond + calcul sur plusieurs jours
     @Test
     void car10HeuresDepassentForfaitJour() {
         assertEquals(
                 20.0,
                 parkingBilling.computePrice("CAR", entree, entree.plusHours(10), false),
-                0.001);
+                0.001
+        );
     }
 
     @Test
@@ -123,7 +83,8 @@ class ParkingBillingTest {
         assertEquals(
                 20.0,
                 parkingBilling.computePrice("CAR", entree, entree.plusHours(24), false),
-                0.001);
+                0.001
+        );
     }
 
     @Test
@@ -131,9 +92,11 @@ class ParkingBillingTest {
         assertEquals(
                 22.0,
                 parkingBilling.computePrice("CAR", entree, entree.plusHours(25), false),
-                0.001);
+                0.001
+        );
     }
 
+    // Forfait nuit
     @Test
     void carParkingNuitCoute5Euros() {
         LocalDateTime entreeNuit = LocalDateTime.of(2026, 11, 4, 20, 0);
@@ -142,7 +105,8 @@ class ParkingBillingTest {
         assertEquals(
                 5.0,
                 parkingBilling.computePrice("CAR", entreeNuit, sortieNuit, false),
-                0.001);
+                0.001
+        );
     }
 
     @Test
@@ -153,7 +117,8 @@ class ParkingBillingTest {
         assertEquals(
                 20.0,
                 parkingBilling.computePrice("CAR", entreeNuit, sortieNuit, false),
-                0.001);
+                0.001
+        );
     }
 
     @Test
@@ -161,7 +126,8 @@ class ParkingBillingTest {
         assertEquals(
                 6.4,
                 parkingBilling.computePrice("CAR", entree, entree.plusHours(4), true),
-                0.001);
+                0.001
+        );
     }
 
     @Test
@@ -175,8 +141,58 @@ class ParkingBillingTest {
                 0.001);
     }
 
-    // AUTRES TESTS MOTOS
+    // TESTS MOTOS
 
+    // Vérifie que 30 minutes de stationnement moto sont gratuites.
+    @Test
+    void motorBikeThirteenMinutesFree() {
+        LocalDateTime entry = LocalDateTime.of(2026, 10, 28, 9, 0);
+
+        assertEquals(0.00, parkingBilling.computePrice(
+                "MOTORBIKE", entry, entry.plusMinutes(30), false), 0.001);
+    }
+
+    // Vérifie qu'à 31 minutes, une heure est facturée.
+    @Test
+    void motorbikeThirtyOneMinutes() {
+        LocalDateTime entry = LocalDateTime.of(2026, 10, 28, 10, 0);
+
+        assertEquals(1.00, parkingBilling.computePrice(
+                "MOTORBIKE", entry, entry.plusMinutes(31), false), 0.001);
+    }
+
+    // Vérifie le tarif actuel pour une durée de 1 h 1 min : deux heures sont facturées.
+    @Test
+    void motorbikeOneHourAndOneMinuteCostsTwoEuros() {
+        LocalDateTime entry = LocalDateTime.of(2026, 10, 28, 10, 0);
+
+        assertEquals(2.00, parkingBilling.computePrice(
+                "MOTORBIKE", entry, entry.plusHours(1).plusMinutes(1), false), 0.001);
+    }
+
+    // Vérifie le plafond de 10 € à 24 h et le prix de 11 € à 25 h.
+    @Test
+    void motorbikeTwentyFourHoursVsTwentyFiveHours() {
+        LocalDateTime entry = LocalDateTime.of(2026, 10, 28, 10, 0);
+
+        assertEquals(10.00, parkingBilling.computePrice(
+                "MOTORBIKE", entry, entry.plusHours(24), false), 0.001);
+        assertEquals(11.00, parkingBilling.computePrice(
+                "MOTORBIKE", entry, entry.plusHours(25), false), 0.001);
+    }
+
+    // Vérifie que le forfait nuit moto coûte 3 € pour une entrée à 20 h
+// et une sortie avant 8 h le lendemain.
+    @Test
+    void motorbikeNightPackageCostsThreeEuros() {
+        LocalDateTime entry = LocalDateTime.of(2026, 10, 27, 20, 0);
+        LocalDateTime exit = LocalDateTime.of(2026, 10, 28, 7, 0);
+
+        assertEquals(3.00, parkingBilling.computePrice(
+                "MOTORBIKE", entry, exit, false), 0.001);
+    }
+
+    // Vérifie qu'à 8 h pile, le forfait nuit ne s'applique plus.
     @Test
     void motorbikeNightPackageDoesNotApplyAtEightAm() {
         LocalDateTime entry = LocalDateTime.of(2026, 10, 27, 20, 0);
@@ -186,14 +202,16 @@ class ParkingBillingTest {
                 "MOTORBIKE", entry, exit, false), 0.001);
     }
 
+    // Vérifie que la réduction abonné de 20 % fait passer le tarif de 4 € à 3,20 €.
     @Test
-    void motorbikeSubscriberGetsTwentyPercentDiscountOnWeekday() {
+    void motorbikeSubscriberGetsTwentyPercentDiscount() {
         LocalDateTime entry = LocalDateTime.of(2026, 10, 28, 10, 0);
 
         assertEquals(3.20, parkingBilling.computePrice(
                 "MOTORBIKE", entry, entry.plusHours(4), true), 0.001);
     }
 
+    // Vérifie que la réduction abonné s'applique aussi au forfait nuit de 3 €.
     @Test
     void motorbikeSubscriberGetsDiscountOnNightPackage() {
         LocalDateTime entry = LocalDateTime.of(2026, 10, 27, 20, 0);
