@@ -16,26 +16,7 @@ public class ParkingBilling {
             LocalDateTime exit,
             boolean subscriber) {
 
-        PricingStrategy strategy;
-
-        switch (vehicleType) {
-            case "CAR":
-                strategy = new CarPricingStrategy();
-                break;
-
-            case "MOTORBIKE":
-                strategy = new MotorBikePricingStrategy();
-                break;
-
-            case "VAN":
-                strategy = new VanPricingStrategy();
-                break;
-
-            default:
-                throw new IllegalArgumentException(
-                        "Type de véhicule inconnu : " + vehicleType
-                );
-        }
+        PricingStrategy strategy = PricingStrategyFactory.forVehicleType(vehicleType);
 
         if (subscriber) {
             strategy = new DiscountDecorator(strategy, 0.20);
