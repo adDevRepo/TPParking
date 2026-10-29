@@ -1,6 +1,8 @@
 package fr.parchorizon;
 
 import fr.parchorizon.service.ParkingBilling;
+import fr.parchorizon.service.strategy.DiscountDecorator;
+import fr.parchorizon.service.strategy.PricingStrategy;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -183,7 +185,7 @@ class ParkingBillingTest {
     }
 
     // Vérifie que le forfait nuit moto coûte 3 € pour une entrée à 20 h
-// et une sortie avant 8 h le lendemain.
+    // et une sortie avant 8 h le lendemain.
     @Test
     void motorbikeNightPackageCostsThreeEuros() {
         LocalDateTime entry = LocalDateTime.of(2026, 10, 27, 20, 0);
@@ -220,5 +222,19 @@ class ParkingBillingTest {
 
         assertEquals(2.40, parkingBilling.computePrice(
                 "MOTORBIKE", entry, exit, true), 0.001);
+    }
+
+
+    // Test du pattern decorator associé aux remises
+
+    @Test
+    void appliesTwentyPercentDiscountToWrappedStrategyPrice() {
+        PricingStrategy baseStrategy = (entry, exit) -> 10.0;
+        DiscountDecorator decorator = new DiscountDecorator(baseStrategy, 0.20);
+
+        LocalDateTime entry = LocalDateTime.of(2026, 11, 4, 10, 0);
+        LocalDateTime exit = entry.plusHours(1);
+
+        assertEquals(8.0, decorator.computePrice(entry, exit), 0.001);
     }
 }
