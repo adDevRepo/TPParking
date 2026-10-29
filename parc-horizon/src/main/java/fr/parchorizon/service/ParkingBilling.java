@@ -2,10 +2,7 @@
 package fr.parchorizon.service;
 
 import fr.parchorizon.config.ParkingConfig;
-import fr.parchorizon.service.strategy.CarPricingStrategy;
-import fr.parchorizon.service.strategy.MotorBikePricingStrategy;
-import fr.parchorizon.service.strategy.PricingStrategy;
-import fr.parchorizon.service.strategy.VanPricingStrategy;
+import fr.parchorizon.service.strategy.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -40,13 +37,11 @@ public class ParkingBilling {
                 );
         }
 
-        double price = strategy.computePrice(entry, exit);
-
         if (subscriber) {
-            price *= 0.8;
+            strategy = new DiscountDecorator(strategy, 0.20);
         }
 
-        return price;
+        return strategy.computePrice(entry, exit);
     }
 
     public String printReceipt(
