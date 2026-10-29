@@ -1,5 +1,7 @@
 package fr.parchorizon;
 
+import fr.parchorizon.service.ParkingBilling;
+
 import java.time.LocalDateTime;
 
 /** Simule quelques passages à la borne de sortie. */
