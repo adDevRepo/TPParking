@@ -31,10 +31,7 @@ public class ParkingBilling {
             boolean subscriber,
             double chargedKWh) {
 
-        if (chargedKWh < 0 || !Double.isFinite(chargedKWh)) {
-            throw new IllegalArgumentException(
-                    "La quantité de kWh doit être positive ou nulle");
-        }
+        validateChargedKWh(chargedKWh);
 
         PricingStrategy strategy =
                 PricingStrategyFactory.forVehicleType(vehicleType);
@@ -48,15 +45,25 @@ public class ParkingBilling {
         }
 
         double parkingPrice = strategy.computePrice(entry, exit);
+        double chargingPrice = computeChargingPrice(vehicleType, chargedKWh);
 
-        // La recharge n'est ni réduite ni plafonnée.
-        double chargingPrice = 0.0;
+        // On ajoute la recharge après les réductions, qui ne concernent que le stationnement.
+        return parkingPrice + chargingPrice;
+    }
 
-        if ("ELECTRIC_CAR".equals(vehicleType)) {
-            chargingPrice = chargedKWh * PRICE_PER_KWH;
+    private double computeChargingPrice(String vehicleType, double chargedKWh) {
+        if (!"ELECTRIC_CAR".equals(vehicleType)) {
+            return 0.0;
         }
 
-        return parkingPrice + chargingPrice;
+        return chargedKWh * PRICE_PER_KWH;
+    }
+
+    private void validateChargedKWh(double chargedKWh) {
+        if (chargedKWh < 0.0 || !Double.isFinite(chargedKWh)) {
+            throw new IllegalArgumentException(
+                    "La quantité de kWh doit être positive ou nulle");
+        }
     }
 
     public String printReceipt(
