@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Tests de caractérisation des tarifs actuels.
@@ -237,4 +238,127 @@ class ParkingBillingTest {
 
         assertEquals(8.0, decorator.computePrice(entry, exit), 0.001);
     }
+
+    @Test
+    void carSaturdayGetsFiftyPercentDiscount() {
+        LocalDateTime entry =
+                LocalDateTime.of(2026, 10, 31, 10, 0);
+
+        assertEquals(
+                4.0,
+                parkingBilling.computePrice(
+                        "CAR", entry, entry.plusHours(4), false),
+                0.001
+        );
+    }
+
+    @Test
+    void carSundayGetsFiftyPercentDiscount() {
+        LocalDateTime entry =
+                LocalDateTime.of(2026, 11, 1, 10, 0);
+
+        assertEquals(
+                4.0,
+                parkingBilling.computePrice(
+                        "CAR", entry, entry.plusHours(4), false),
+                0.001
+        );
+    }
+
+    @Test
+    void carWeekdayDoesNotGetWeekendDiscount() {
+        LocalDateTime entry =
+                LocalDateTime.of(2026, 11, 2, 10, 0);
+
+        assertEquals(
+                8.0,
+                parkingBilling.computePrice(
+                        "CAR", entry, entry.plusHours(4), false),
+                0.001
+        );
+    }
+
+    @Test
+    void weekendDiscountIsAppliedBeforeSubscriberDiscount() {
+        LocalDateTime entry =
+                LocalDateTime.of(2026, 10, 31, 10, 0);
+
+        assertEquals(
+                3.2,
+                parkingBilling.computePrice(
+                        "CAR", entry, entry.plusHours(4), true),
+                0.001
+        );
+    }
+
+    @Test
+    void electricCarChargesFourHoursPlusTwelveKWh() {
+        LocalDateTime entry =
+                LocalDateTime.of(2026, 10, 31, 10, 0);
+
+        assertEquals(
+                8.2,
+                parkingBilling.computePrice(
+                        "ELECTRIC_CAR", entry,
+                        entry.plusHours(4), false, 12.0),
+                0.001
+        );
+    }
+
+    @Test
+    void electricCarSubscriberWeekendExample() {
+        LocalDateTime entry =
+                LocalDateTime.of(2026, 10, 31, 10, 0);
+
+        assertEquals(
+                7.4,
+                parkingBilling.computePrice(
+                        "ELECTRIC_CAR", entry,
+                        entry.plusHours(4), true, 12.0),
+                0.001
+        );
+    }
+
+    @Test
+    void electricChargingIsNotDiscountedForSubscriber() {
+        LocalDateTime entry =
+                LocalDateTime.of(2026, 10, 31, 10, 0);
+
+        double price = parkingBilling.computePrice(
+                "ELECTRIC_CAR", entry,
+                entry.plusHours(4), true, 12.0);
+
+        // Stationnement : 8 € -> 4 € -> 3,20 €
+        // Recharge : 12 × 0,35 € = 4,20 €
+        assertEquals(3.2 + 4.2, price, 0.001);
+    }
+
+    @Test
+    void electricCarOldMethodStillWorks() {
+        LocalDateTime entry =
+                LocalDateTime.of(2026, 11, 4, 10, 0);
+
+        // L'ancienne méthode ne reçoit pas de kWh.
+        assertEquals(
+                8.0,
+                parkingBilling.computePrice(
+                        "ELECTRIC_CAR", entry,
+                        entry.plusHours(4), false),
+                0.001
+        );
+    }
+
+    @Test
+    void negativeChargedKWhThrowsException() {
+        LocalDateTime entry =
+                LocalDateTime.of(2026, 11, 4, 10, 0);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> parkingBilling.computePrice(
+                        "ELECTRIC_CAR", entry,
+                        entry.plusHours(4), false, -1.0)
+        );
+    }
+
 }

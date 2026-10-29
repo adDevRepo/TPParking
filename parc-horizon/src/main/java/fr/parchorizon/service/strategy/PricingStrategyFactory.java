@@ -9,6 +9,7 @@ public final class PricingStrategyFactory {
     public static PricingStrategy forVehicleType(String vehicleType) {
         switch (vehicleType) {
             case "CAR":
+            case "ELECTRIC_CAR":
                 return new CarPricingStrategy();
             case "MOTORBIKE":
                 return new MotorBikePricingStrategy();
