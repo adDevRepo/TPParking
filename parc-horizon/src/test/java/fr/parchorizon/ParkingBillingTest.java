@@ -293,11 +293,11 @@ class ParkingBillingTest {
 
     @Test
     void electricCarChargesFourHoursPlusTwelveKWh() {
-        LocalDateTime entry =
-                LocalDateTime.of(2026, 10, 31, 10, 0);
+        // En semaine, le stationnement voiture coûte 8 € et 12 kWh coûtent 4,20 €.
+        LocalDateTime entry = LocalDateTime.of(2026, 11, 4, 10, 0);
 
         assertEquals(
-                8.2,
+                12.2,
                 parkingBilling.computePrice(
                         "ELECTRIC_CAR", entry,
                         entry.plusHours(4), false, 12.0),
@@ -321,16 +321,30 @@ class ParkingBillingTest {
 
     @Test
     void electricChargingIsNotDiscountedForSubscriber() {
-        LocalDateTime entry =
-                LocalDateTime.of(2026, 10, 31, 10, 0);
+        // L'abonné a 20 % de remise sur le parking, mais pas sur la recharge.
+        LocalDateTime entry = LocalDateTime.of(2026, 11, 4, 10, 0);
 
         double price = parkingBilling.computePrice(
                 "ELECTRIC_CAR", entry,
                 entry.plusHours(4), true, 12.0);
 
-        // Stationnement : 8 € -> 4 € -> 3,20 €
+        // Stationnement : 8 € -> 6,40 € en semaine.
         // Recharge : 12 × 0,35 € = 4,20 €
-        assertEquals(3.2 + 4.2, price, 0.001);
+        assertEquals(6.4 + 4.2, price, 0.001);
+    }
+
+    @Test
+    void electricCarPaysChargingDuringFreeParkingPeriod() {
+        // Les 20 minutes de parking sont gratuites, mais les 5 kWh sont facturés.
+        LocalDateTime entry = LocalDateTime.of(2026, 11, 4, 10, 0);
+
+        assertEquals(
+                1.75,
+                parkingBilling.computePrice(
+                        "ELECTRIC_CAR", entry,
+                        entry.plusMinutes(20), false, 5.0),
+                0.001
+        );
     }
 
     @Test
