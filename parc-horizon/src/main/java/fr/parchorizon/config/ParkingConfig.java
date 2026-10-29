@@ -1,4 +1,4 @@
-package fr.parchorizon;
+package fr.parchorizon.config;
 
 /** Informations fixes du parking, affichées sur les tickets. */
 public final class ParkingConfig {
